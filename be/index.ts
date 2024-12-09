@@ -35,4 +35,6 @@ app.get("/", (req, res) => {
 app.use("/api/auth", userRouter);
 app.use("/api/admin", adminController);
 
-app.listen(3000, () => console.log("Server running!"));
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => console.log("Server running!"));
