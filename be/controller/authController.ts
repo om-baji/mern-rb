@@ -1,143 +1,173 @@
-import express from "express";
 import bcrypt from "bcryptjs";
-import { connectDb } from "../db";
+import { type NextFunction, type Request, type Response } from "express";
 import { sign } from "jsonwebtoken";
-import userModel from "../models/userModels";
-import middleware from "../middleware/requireAuth";
+import { connectDb } from "../db";
 import { loginSchema } from "../models/loginSchema";
 import { signupSchema } from "../models/signupSchema";
-import alreadyLogged from "../middleware/accessToken";
+import userModel from "../models/userModels";
 
-const userRouter = express.Router();
+class UserController {
 
-userRouter.post("/signup", alreadyLogged, async (req, res) => {
-  await connectDb();
+  private static userController : UserController;
 
-  try {
-    const { name, email, password } = req.body;
-    
-    const { success,error } = signupSchema.safeParse({name,email,password})
-
-    if(!success) {
-      res.status(411).json({
-        message: "Invalid inputs",
-        success: false,
-        error
-      });
+  static getInstance() {
+    if (!UserController.userController) {
+      UserController.userController = new UserController()     
     }
-    const hashPass = await bcrypt.hash(password, 12);
+    return UserController.userController;
 
-    const refreshToken = sign(
-      { email },
-      process.env.REFRESH_TOKEN_SECRET as string,
-      {
-        expiresIn: "7d",
+  }
+
+  async signup(req: Request, res: Response, next : NextFunction) {
+    await connectDb();
+    try {
+      const { name, email, password } = req.body;
+
+      const { success, error } = signupSchema.safeParse({ name, email, password });
+
+      if (!success) {
+        return res.status(411).json({
+          message: "Invalid inputs",
+          success: false,
+          error,
+        });
       }
-    );
 
-    const user = userModel.create({
-      name,
-      email,
-      password: hashPass,
-      refreshToken,
-    });
+      const hashPass = await bcrypt.hash(password, 12);
 
-    (await user).save()
+      const refreshToken = sign(
+        { email },
+        process.env.REFRESH_TOKEN_SECRET as string,
+        { expiresIn: "7d" }
+      );
 
-    const accessToken = sign(
-      { email },
-      process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "30m" }
-    );
-
-    res.cookie("Authorization", accessToken, {
-      httpOnly : true,
-      sameSite : true,
-      maxAge : 30 * 60 * 1000
-    })
-
-    res.json({
-      message: "User created successfully!",
-      success: true,
-    });
-  } catch (error) {
-    console.log(error)
-    res.json({
-      message: "Something went wrong!",
-      success: false,
-    });
-  }
-});
-
-userRouter.post("/login", alreadyLogged,  async (req, res) => {
-  await connectDb();
-  try {
-    const { email, password } = req.body;
-
-    const { success,error } = loginSchema.safeParse({email,password})
-
-    if(!success) {
-      res.status(411).json({
-        message: "Invalid inputs",
-        success: false,
-        error
+      const user = await userModel.create({
+        name,
+        email,
+        password: hashPass,
+        refreshToken,
       });
-    }
 
-    const existingUser = await userModel.findOne({
-      email,
-    });
+      await user.save();
 
-    if (!existingUser) {
-      res.status(402).json({
-        message: "User not found!!",
-        success: false,
+      const accessToken = sign(
+        { email },
+        process.env.ACCESS_TOKEN_SECRET as string,
+        { expiresIn: "30m" }
+      );
+
+      res.cookie("Authorization", accessToken, {
+        httpOnly: true,
+        sameSite: true,
+        maxAge: 30 * 60 * 1000,
       });
-    }
 
-    const isValid = await bcrypt.compare(password, existingUser?.password as string);
-
-    if (!isValid) {
       res.json({
-        message: "Wrong Password!",
+        message: "User created successfully!",
+        success: true,
+      });
+    } catch (error) {
+      console.error(error);
+      next(error)
+      res.status(500).json({
+        message: "Something went wrong!",
         success: false,
       });
     }
-
-    const accessToken = sign(
-      { email },
-      process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "30m" }
-    );
-
-    res.cookie("Authorization", accessToken, {
-      httpOnly : true,
-      sameSite : true,
-      maxAge : 30 * 60 * 1000
-    })
-
-    res.json({
-        message : "Login successfull",
-        success : true
-    })
-
-  } catch (error) {
-    
-    res.json({
-      message: "Something went wrong!",
-      success: false,
-      error
-    });
   }
-});
 
-userRouter.get("/check",alreadyLogged,(req,res) => {
-  res.json({
-    message: "Access granted to protected resource.",
-    success: true,
-  });
-})
+  async login(req: Request, res: Response) {
+    await connectDb();
+    try {
+      const { email, password } = req.body;
 
+      const { success, error } = loginSchema.safeParse({ email, password });
 
+      if (!success) {
+        return res.status(411).json({
+          message: "Invalid inputs",
+          success: false,
+          error,
+        });
+      }
 
-export default userRouter;
+      const existingUser = await userModel.findOne({ email });
+
+      if (!existingUser) {
+        return res.status(402).json({
+          message: "User not found!!",
+          success: false,
+        });
+      }
+
+      const isValid = await bcrypt.compare(password, existingUser.password as string);
+
+      if (!isValid) {
+        return res.status(401).json({
+          message: "Wrong Password!",
+          success: false,
+        });
+      }
+
+      const accessToken = sign(
+        { email },
+        process.env.ACCESS_TOKEN_SECRET as string,
+        { expiresIn: "30m" }
+      );
+
+      res.cookie("Authorization", accessToken, {
+        httpOnly: true,
+        sameSite: true,
+        maxAge: 30 * 60 * 1000,
+      });
+
+      res.json({
+        message: "Login successful",
+        success: true,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Something went wrong!",
+        success: false,
+        error,
+      });
+    }
+  }
+
+  async profile(req: Request,res : Response) {
+    await connectDb()
+
+    try {
+
+      const email = req.body.email
+
+      const user = await userModel.findOne({email},{
+        name : true,
+        email : true,
+        createdAt : true
+      })
+      
+      if(!user) {
+        throw new Error("User not found!")
+      }
+
+      res.status(200).json({
+        message : "Profile fetched",
+        user
+      })
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Something went wrong!",
+        success: false,
+        error,
+      });
+    }
+  }
+}
+
+const userController = UserController.getInstance();
+
+export default userController;

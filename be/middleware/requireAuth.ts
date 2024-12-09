@@ -1,15 +1,17 @@
 import express from "express"
 import { verify, type JwtPayload } from "jsonwebtoken"
 
-const middleware = express.Router()
+const requireAuth = express.Router()
 
-middleware.use(async (req,res,next) => {
+requireAuth.use(async (req,res,next) => {
 
     const token = req.cookies
     
     const isValid = await verify(token.Authorization, process.env.ACCESS_TOKEN_SECRET as string)
 
-    console.log(isValid)
+    // console.log(isValid)
+
+    req.body.email = (isValid as JwtPayload).email
 
     if(!isValid) res.status(411).json({
         message : "Unauthorized"
@@ -21,4 +23,4 @@ middleware.use(async (req,res,next) => {
 
 })
 
-export default middleware;
+export default requireAuth;

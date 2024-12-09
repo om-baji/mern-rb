@@ -1,10 +1,9 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import userRouter from "./controller/authController";
-import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import adminController from "./controller/adminController";
+import userRouter from "./routes/route";
 
 const app = express();
 
@@ -33,7 +32,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", userRouter);
-app.use("/api/admin", adminController);
 
 const PORT = process.env.PORT || 3000;
 

@@ -1,13 +1,13 @@
-import express from "express";
+import express, { type NextFunction } from "express";
 import { verify, type JwtPayload } from "jsonwebtoken";
 
 const alreadyLogged = express.Router();
 
-alreadyLogged.use((req, res, next) => {
+alreadyLogged.use((req, res, next : NextFunction) => {
     try {
         const token = req.cookies?.Authorization;
         
-        if (!token) {
+        if (!token || token.length == 0) {
             return next(); 
         }
 

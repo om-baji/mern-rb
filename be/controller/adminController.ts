@@ -1,36 +1,48 @@
-import express from "express";
-import adminMiddleware from "../middleware/adminMiddleware";
+import { type Request, type Response } from "express";
 import { connectDb } from "../db";
 import userModel from "../models/userModels";
 
-const adminController = express.Router();
+class AdminController {
 
-adminController.get("/users", adminMiddleware, async (req, res) => {
-  await connectDb();
+    private static adminController : AdminController;
 
-  try {
-    const users = await userModel.find(
-      { isAdmin: false },
-      {
-        name: true,
-        email: true,
-        createdAt: true,
+    static getInstance() {
+      if(!AdminController.adminController) {
+        AdminController.adminController = new AdminController()
       }
-    );
 
-    res.status(200).json({
-        message : "Fetch success",
-        success : true,
-        users
-    })
+      return AdminController.adminController;
+    }
 
+    async getUsers(req : Request ,res : Response) {
+      await connectDb();
 
-  } catch (error) {
-    res.status(500).json({
-        message : "Soemthing went wrong!",
-        success : false
-    })
-  }
-});
+      try {
+        const users = await userModel.find(
+          { isAdmin: false },
+          {
+            name: true,
+            email: true,
+            createdAt: true,
+          }
+        );
+    
+        res.status(200).json({
+            message : "Fetch success",
+            success : true,
+            users
+        })
+    
+    
+      } catch (error) {
+        res.status(500).json({
+            message : "Soemthing went wrong!",
+            success : false
+        })
+      }
+    }
+}
+
+const adminController = AdminController.getInstance();
 
 export default adminController;
