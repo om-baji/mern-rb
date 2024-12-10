@@ -15,7 +15,9 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+}));
 
 
 app.get("/", (req, res) => {
