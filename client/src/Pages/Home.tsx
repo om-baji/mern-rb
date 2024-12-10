@@ -42,7 +42,7 @@ const Home = () => {
 
                 setUser(data.user)
 
-                setLaoding(true)
+                setLaoding(false)
 
             } catch (error) {
                 console.warn(error)
