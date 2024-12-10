@@ -33,6 +33,7 @@ const Loginpage = () => {
             navigate("/home")
 
         } catch (error) {
+            setIsLoading(false)
             toast.error("Something went wrong!")
             console.warn(error)
         }
