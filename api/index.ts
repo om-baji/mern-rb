@@ -8,16 +8,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://mern-rb.vercel.app/"],
+    origin: ["http://localhost:5173","https://mern-rb.vercel.app"],
     methods: ["POST", "GET", "OPTIONS"],
     credentials: true,
   })
 );
 app.use(cookieParser());
 app.use(express.json());
-// app.use(helmet({
-//   crossOriginResourcePolicy: false,
-// }));
+app.use(helmet());
 
 
 app.get("/", (req, res) => {
