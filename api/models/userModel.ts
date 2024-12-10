@@ -28,7 +28,7 @@ const userSchema = new Schema<User> ({
         type : Date,
         default : Date.now
     },
-    refreshToken : String,
+    refreshToken : String || null,
     isAdmin : {
         type : Boolean,
         default : false

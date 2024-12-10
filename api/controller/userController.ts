@@ -45,6 +45,12 @@ class UserController {
             const accessToken = await generateAccessToken(existingUser._id as string)
             const refreshToken = await generateRefreshToken(existingUser._id as string)
 
+            await userModel.updateOne({_id : existingUser._id}, {
+                "$set" : {
+                    refreshToken : refreshToken
+                }
+            })
+
             res.status(200)
                 .cookie("accessToken", accessToken, cookieOptions)
                 .cookie("refreshToken", refreshToken, cookieOptions)
@@ -123,13 +129,15 @@ class UserController {
         try {
         const id = req.body.user.id
         const refreshToken = req.body.user.refreshToken
-        
-        const user = await userModel.findByIdAndUpdate(id,{
-            refreshToken : null
-        })
+
+        console.log(req.body.user)
 
         await blackListModel.create({
             token : refreshToken
+        })
+        
+        const user = await userModel.findByIdAndUpdate(id,{
+            refreshToken : ""
         })
 
         user?.save();

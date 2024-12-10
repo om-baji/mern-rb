@@ -25,6 +25,8 @@ export const authMiddleware = async (req : Request, res : Response, next : NextF
             refreshToken : true,
         })
 
+        console.log("in md" , user)
+
         req.body.user = user
 
         next()   
