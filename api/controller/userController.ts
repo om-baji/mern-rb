@@ -130,8 +130,6 @@ class UserController {
         const id = req.body.user.id
         const refreshToken = req.body.user.refreshToken
 
-        console.log(req.body.user)
-
         await blackListModel.create({
             token : refreshToken
         })
