@@ -1,9 +1,8 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import userRouter from "./routes/route";
+import userRouter from "./routes/userRouter";
 
 const app = express();
 
@@ -18,12 +17,6 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(helmet());
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-});
-
-app.use(limiter);
 
 app.get("/", (req, res) => {
   res.json({
