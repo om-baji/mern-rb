@@ -40,10 +40,16 @@ const Loginpage = () => {
     }
 
     return (
-        <div className='grid grid-cols-2'>
+        <div className='grid grid-cols-1 md:grid-cols-2'>
+
+            <div className='bg-neutral-900 flex flex-col justify-center items-center h-[200px] md:h-screen'>
+                <p className="text-lg text-neutral-400 px-6 text-center">
+                    Built with MongoDB, Express, React, and Node.js to provide seamless and secure authentication workflows.
+                </p>
+            </div>
 
 
-            <div className='bg-zinc-100 flex flex-col justify-center items-center h-screen gap-4'>
+            <div className='bg-zinc-100 flex flex-col justify-center items-center h-[500px] md:h-screen gap-4'>
 
                 <span>Welcome back! Log in to continue</span>
 
@@ -72,12 +78,6 @@ const Loginpage = () => {
                     <u>Register</u>
                 </Link>
 
-            </div>
-
-            <div className='bg-neutral-900 flex flex-col justify-center items-center h-screen'>
-                <p className="text-lg text-neutral-400 px-6 text-center">
-                    Built with MongoDB, Express, React, and Node.js to provide seamless and secure authentication workflows.
-                </p>
             </div>
 
 

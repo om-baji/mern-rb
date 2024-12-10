@@ -13,7 +13,11 @@ import { AuthProvider } from './components/AuthProvider.tsx'
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    ),
     errorElement: <Errorpage />
   },
   {
