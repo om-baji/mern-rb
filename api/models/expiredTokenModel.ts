@@ -7,7 +7,7 @@ interface expiredToken extends Document {
 
 const expiredTokenSchema: Schema<expiredToken> = new Schema({
     token : {
-        type : String,
+        type : String || null,
         required : [true,'Required Field']
     },
     createdAt : {

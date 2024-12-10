@@ -9,5 +9,6 @@ userRouter.post("/login", userController.login);
 userRouter.get("/logout", authMiddleware, userController.logout);
 
 userRouter.get("/refresh", userController.refresh);
+userRouter.get("/verify", authMiddleware, userController.verify)
 
 export default userRouter;

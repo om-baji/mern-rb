@@ -118,11 +118,14 @@ class UserController {
 
     async logout(req : Request, res : Response) {
 
+        await connectDb()
+
+        try {
         const id = req.body.user.id
         const refreshToken = req.body.user.refreshToken
         
         const user = await userModel.findByIdAndUpdate(id,{
-            refreshToken : ""
+            refreshToken : null
         })
 
         await blackListModel.create({
@@ -138,6 +141,15 @@ class UserController {
                 message : "Logout successfull",
                 success : true
             })
+        } catch (error) {
+            console.warn(error)
+            res.status(500).json({
+                message : error,
+                success : false
+            })
+        }
+
+        
     }
 
     async refresh(req : Request, res : Response) {
@@ -201,6 +213,35 @@ class UserController {
             })
         }
         
+    }
+
+    async verify(req : Request, res : Response) {
+        await connectDb()
+
+        try {
+
+            const id = req.body.user.id;
+
+            const user = await userModel.findById(id,{
+                name : true,
+                email : true,
+                createdAt : true
+            })
+
+            res.status(200)
+                .json({
+                    message : "Valid user",
+                    success : true,
+                    user
+                })
+            
+        } catch (error) {
+            console.warn(error)
+            res.status(500).json({
+                message : error,
+                success : false
+            })
+        }
     }
 }
 
