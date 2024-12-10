@@ -19,6 +19,7 @@ const Home = () => {
     }
 
     const [user, setUser] = useState<User | null>(null)
+    const [loading,setLaoding] = useState<boolean>(true)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -40,6 +41,8 @@ const Home = () => {
                 const data = await response.json()
 
                 setUser(data.user)
+
+                setLaoding(true)
 
             } catch (error) {
                 console.warn(error)
@@ -74,9 +77,9 @@ const Home = () => {
         }
     }
 
-    if (user === null) {
+    if(loading) {
         return <div className="flex justify-center items-center h-screen">
-            Something went wrong
+            Loading...
         </div>
     }
 
@@ -87,7 +90,7 @@ const Home = () => {
                 <ul className="space-y-2 text-gray-800">
                     <li><strong>Name:</strong> {user?.name}</li>
                     <li><strong>Email:</strong> {user?.email}</li>
-                    <li><strong>Created:</strong> {new Date(user?.createdAt).toLocaleString()}</li>
+                    <li><strong>Created:</strong> {new Date(user?.createdAt as Date).toLocaleString()}</li>
                 </ul>
                 <button
                     onClick={handleLogout}
