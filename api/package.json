@@ -9,7 +9,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "prod" : "bun build index.ts --outdir dist"
+    "prod" : "bun install && bun build index.ts --outdir dist"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
