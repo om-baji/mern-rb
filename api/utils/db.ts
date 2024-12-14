@@ -9,6 +9,7 @@ const connection: ConnectionString = {};
 export const connectDb = async () => {
   if (connection.isConnected) {
     console.log("Already connected to DB");
+    return;
   }
 
   try {
